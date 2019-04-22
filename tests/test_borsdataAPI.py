@@ -30,3 +30,8 @@ class TestBorsdataAPI(TestCase):
         entries = self.api.get_instrument_stockprice(3, '2009-04-22', '2009-04-25')
 
         self.assertTrue(len(entries) == 3)
+
+    def test_get_instruments_by_market(self):
+        filtered_instruments = self.api.get_instruments(markets=[1, 2])
+
+        self.assertTrue(len(filtered_instruments) == 281)
