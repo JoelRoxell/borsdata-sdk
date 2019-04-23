@@ -12,7 +12,8 @@ class Instrument:
     countryId: int
     listingDate: str
 
-    def __init__(self, insId, name, urlName, instrument, isin, ticker, yahoo, sectorId, marketId, branchId, countryId, listingDate):
+    def __init__(self, insId, name, urlName, instrument, isin, ticker, yahoo, sectorId, marketId, branchId, countryId,
+                 listingDate):
         self.insId = insId
         self.name = name
         self.urlName = urlName
@@ -27,4 +28,7 @@ class Instrument:
         self.listingDate = listingDate
 
     def __str__(self):
+        return '{}: {}'.format(self.insId, self.name)
+
+    def __repr__(self):
         return '{}: {}'.format(self.insId, self.name)
