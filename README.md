@@ -2,7 +2,7 @@
 
 > unofficial
 
-python SDK for the [Börsdata API](https://github.com/Borsdata-Sweden/API). Note that all endpoints are not yet implemented.
+python SDK for the [Börsdata API](https://github.com/Borsdata-Sweden/API). Note that all endpoints are not yet implemented -> [API](https://apidoc.borsdata.se/swagger/index.html).
 
 ## Install
 `pip install borsdata-sdk`
