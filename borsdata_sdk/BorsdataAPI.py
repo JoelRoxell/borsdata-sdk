@@ -82,10 +82,9 @@ class BorsdataAPI:
     def get_instrument_stock_price_last(self) -> List[StockPrice]:
         """ Returns Last StockPrices for all instruments.
         """
-
         status, data = self._get('instruments/stockprices/last')
 
-        return [StockPrice(**entry) for entry in data.get('stockPricesList', [])]  # TODO: map to usable objects.
+        return [StockPrice(**entry) for entry in data.get('stockPricesList', [])]
 
     def _get_data_object(self, data_type):
         status, data = self._get(data_type)
@@ -97,7 +96,6 @@ class BorsdataAPI:
 
     def _get(self, endpoint):
         while True:
-            # TODO: consider multiprocess reqs dut to GIL.
             res = get(self._root + endpoint, self._params, verify=False)
 
             if res.status_code != RATE_LIMIT:
