@@ -34,18 +34,18 @@ class BorsdataAPI:
         return self._markets
 
     def get_markets(self) -> List[Market]:
-        self._markets = [Market(**market) for market in self.get_data('markets')]
+        self._markets = [Market(**market) for market in self._get_data_object('markets')]
 
         return self._markets
 
     def get_branches(self):
-        return [Branch(**branch) for branch in self.get_data('branches')]
+        return [Branch(**branch) for branch in self._get_data_object('branches')]
 
     def get_sectors(self):
-        return [Sector(**sector) for sector in self.get_data('sectors')]
+        return [Sector(**sector) for sector in self._get_data_object('sectors')]
 
     def get_instruments(self, markets=None) -> List[Instrument]:
-        instruments = [Instrument(**instrument) for instrument in self.get_data('instruments')]
+        instruments = [Instrument(**instrument) for instrument in self._get_data_object('instruments')]
 
         if markets is None:
             return instruments
@@ -58,7 +58,7 @@ class BorsdataAPI:
 
         return filtered_instruments
 
-    def get_instrument_stockprice(self, ins_id, start=None, end=None):
+    def get_instrument_stock_price(self, ins_id, start=None, end=None):
         params = self._params.copy()
 
         while True:
@@ -79,16 +79,28 @@ class BorsdataAPI:
 
         return entries
 
-    def get_data(self, data_type):
+    def get_instrument_stock_price_last(self) -> List[StockPrice]:
+        """ Returns Last StockPrices for all instruments.
+        """
+        status, data = self._get('instruments/stockprices/last')
+
+        return [StockPrice(**entry) for entry in data.get('stockPricesList', [])]
+
+    def _get_data_object(self, data_type):
+        status, data = self._get(data_type)
+
+        if status != 200:
+            raise IOError(f'Failed to communicate with {self._root}{data_type} status: {status}')
+
+        return data.get(data_type)
+
+    def _get(self, endpoint):
         while True:
-            # TODO: consider multiprocess reqs dut to GIL.d
-            res = get(self._root + data_type, self._params, verify=False)
+            res = get(self._root + endpoint, self._params, verify=False)
 
             if res.status_code != RATE_LIMIT:
                 break
 
             sleep(0.3)
 
-        data = loads(res.content)
-
-        return data.get(data_type)
+        return res.status_code, res.json()
