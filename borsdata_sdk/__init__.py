@@ -1,1 +1,1 @@
-from .BorsdataAPI import BorsdataAPI
+from borsdata_sdk.BorsdataAPI import BorsdataAPI

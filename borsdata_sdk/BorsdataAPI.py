@@ -4,13 +4,14 @@ from typing import List
 
 from requests import get
 
-from borsdata_sdk.models.Branch import Branch
-from borsdata_sdk.models.Instrument import Instrument
-from borsdata_sdk.models.Market import Market
-from borsdata_sdk.models.Sector import Sector
-from borsdata_sdk.models.StockPrice import StockPrice
+from .models.Branch import Branch
+from .models.Instrument import Instrument
+from .models.Market import Market
+from .models.Sector import Sector
+from .models.StockPrice import StockPrice
 
 RATE_LIMIT = 429
+UPDATED = True
 
 
 class BorsdataAPI:
@@ -68,7 +69,7 @@ class BorsdataAPI:
             res = get(self._root + 'instruments/{}/stockprices'.format(ins_id), params=params, verify=False)
 
             if res.status_code != 200 and not res.status_code == RATE_LIMIT:
-                raise IOError('Failed to communicate with the borsdata api')
+                raise IOError('Failed to communicate with the borsdata_sdk api')
 
             if res.status_code == 200:
                 break
