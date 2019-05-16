@@ -20,11 +20,17 @@ class TestBorsdataAPI(TestCase):
     def test_get_instruments(self):
         self.assertTrue(len(self.api.get_instruments()) > 0)
 
+    def test_get_instruments_last(self):
+        updated_instruments = self.api.get_instruments_updated()
+
+        self.assertTrue(len(updated_instruments) > 0)
+
     def test_get_instrument_stock_price_all(self):
         self.assertTrue(len(self.api.get_instrument_stock_price(3)) > 0)
 
     def test_get_instrument_stockprice_from_to(self):
-        entries = self.api.get_instrument_stock_price(3, '2009-04-22', '2009-04-25')
+        entries = self.api.get_instrument_stock_price(
+            3, '2009-04-22', '2009-04-25')
 
         self.assertTrue(len(entries) == 3)
 
