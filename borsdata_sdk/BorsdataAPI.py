@@ -6,6 +6,7 @@ from requests import get
 
 from .models.Branch import Branch
 from .models.Instrument import Instrument
+from .models.InstrumentUpdate import InstrumentUpdate
 from .models.Market import Market
 from .models.Sector import Sector
 from .models.StockPrice import StockPrice
@@ -23,7 +24,8 @@ class BorsdataAPI:
         self._params = {'authKey': self.api_key}
         self._uri = 'https://apiservice.borsdata.se'
         self._version = 'v1'
-        self._root = '{host}/{version}/'.format(host=self._uri, version=self._version)
+        self._root = '{host}/{version}/'.format(
+            host=self._uri, version=self._version)
         self._markets = None
         self._instruments = None
 
@@ -35,7 +37,8 @@ class BorsdataAPI:
         return self._markets
 
     def get_markets(self) -> List[Market]:
-        self._markets = [Market(**market) for market in self._get_data_object('markets')]
+        self._markets = [Market(**market)
+                         for market in self._get_data_object('markets')]
 
         return self._markets
 
@@ -46,7 +49,8 @@ class BorsdataAPI:
         return [Sector(**sector) for sector in self._get_data_object('sectors')]
 
     def get_instruments(self, markets=None) -> List[Instrument]:
-        instruments = [Instrument(**instrument) for instrument in self._get_data_object('instruments')]
+        instruments = [Instrument(**instrument)
+                       for instrument in self._get_data_object('instruments')]
 
         if markets is None:
             return instruments
@@ -59,6 +63,11 @@ class BorsdataAPI:
 
         return filtered_instruments
 
+    def get_instruments_updated(self) -> List[InstrumentUpdate]:
+        _, data = self._get('instruments/updated')
+
+        return [InstrumentUpdate(**instrument) for instrument in data.get('instruments')]
+
     def get_instrument_stock_price(self, ins_id, start=None, end=None):
         params = self._params.copy()
 
@@ -66,17 +75,20 @@ class BorsdataAPI:
             if start and end:
                 params.update({'from': start, 'to': end})
 
-            res = get(self._root + 'instruments/{}/stockprices'.format(ins_id), params=params, verify=False)
+            res = get(self._root + 'instruments/{}/stockprices'.format(ins_id),
+                      params=params, verify=False)
 
             if res.status_code != 200 and not res.status_code == RATE_LIMIT:
-                raise IOError('Failed to communicate with the borsdata_sdk api')
+                raise IOError(
+                    'Failed to communicate with the borsdata_sdk api')
 
             if res.status_code == 200:
                 break
 
             sleep(0.3)
 
-        entries = [StockPrice(**entry) for entry in loads(res.content).get('stockPricesList')]
+        entries = [StockPrice(**entry)
+                   for entry in loads(res.content).get('stockPricesList')]
 
         return entries
 
@@ -91,7 +103,8 @@ class BorsdataAPI:
         status, data = self._get(data_type)
 
         if status != 200:
-            raise IOError(f'Failed to communicate with {self._root}{data_type} status: {status}')
+            raise IOError(
+                f'Failed to communicate with {self._root}{data_type} status: {status}')
 
         return data.get(data_type)
 
