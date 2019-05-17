@@ -17,6 +17,11 @@ class TestBorsdataAPI(TestCase):
     def test_get_sectors(self):
         self.assertTrue(len(self.api.get_sectors()) > 0)
 
+    def test_get_countries(self):
+        countries = self.api.get_countries()
+
+        self.assertTrue(len(countries) > 0)
+
     def test_get_instruments(self):
         self.assertTrue(len(self.api.get_instruments()) > 0)
 
