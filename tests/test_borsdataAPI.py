@@ -53,3 +53,12 @@ class TestBorsdataAPI(TestCase):
         splits = self.api.get_stock_splits()
 
         self.assertGreater(len(splits), 0)
+
+    def test_get_instruments_reports(self):
+        yearly_reports = self.api.get_instrument_reports(3, 'year')
+        r12s = self.api.get_instrument_reports(3, 'r12')
+        quarters = self.api.get_instrument_reports(3, 'quarter')
+
+        self.assertTrue(yearly_reports[-1].year == 2009)
+        self.assertTrue(r12s[-1].year == 2016)
+        self.assertTrue(quarters[-1].year == 2016)
