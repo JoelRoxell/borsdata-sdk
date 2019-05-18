@@ -48,3 +48,8 @@ class TestBorsdataAPI(TestCase):
         filtered_instruments = self.api.get_instruments(markets=[1, 2])
 
         self.assertTrue(len(filtered_instruments) == 281)
+
+    def test_get_instrument_stock_split(self):
+        splits = self.api.get_stock_splits()
+
+        self.assertGreater(len(splits), 0)
