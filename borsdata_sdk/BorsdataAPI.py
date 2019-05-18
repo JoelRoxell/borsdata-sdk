@@ -3,6 +3,7 @@ from time import sleep
 from typing import List
 from http import HTTPStatus
 
+import urllib3
 from requests import get
 
 from .models.Branch import Branch
@@ -19,6 +20,8 @@ from .APIError import APIError
 RATE_LIMIT = 429
 RATE_WAIT = .3
 UPDATED = True
+
+urllib3.disable_warnings()
 
 
 class BorsdataAPI:
