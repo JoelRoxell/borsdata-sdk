@@ -12,6 +12,8 @@ python SDK for the [Börsdata API](https://github.com/Borsdata-Sweden/API). Note
 
 ## Usage
 
+A simple example can be found [here](demo/stock-list-ex.ipynb).
+
 ```python
 from borsdata_sdk import BorsdataAPI
 
