@@ -11,6 +11,7 @@ from .models.Market import Market
 from .models.Sector import Sector
 from .models.StockPrice import StockPrice
 from .models.Country import Country
+from .models.StockSplit import StockSplit
 
 RATE_LIMIT = 429
 RATE_WAIT = .3
@@ -50,7 +51,13 @@ class BorsdataAPI:
 
         return [Sector(**sector) for sector in self._get_data_object('sectors')]
 
-    def get_countries(self):
+    def get_countries(self) -> List[Country]:
+        """Return all countries.
+
+        Returns:
+            List[Country] -- Lost of countires.
+        """
+
         return [Country(**country) for country in self._get_data_object('countries')]
 
     def get_instruments(self, markets=None) -> List[Instrument]:
@@ -139,6 +146,16 @@ class BorsdataAPI:
 
         return [StockPrice(**entry) for entry in data.get('stockPricesList', [])]
 
+    def get_stock_splits(self) -> List[int]:
+        """Returns Stock Splits for all Instruments. Max 1 Year.
+
+        Returns:
+            List[int] -- [description]
+        """
+        status, data = self._get('instruments/StockSplits')
+
+        return [StockSplit(**split) for split in data.get('stockSplitList')]
+
     def _get_data_object(self, data_type):
         """Gets the specified datatype from the remote API.
 
@@ -151,7 +168,6 @@ class BorsdataAPI:
         Returns:
             List[T] - List of the passed type.
         """
-
         status, data = self._get(data_type)
 
         if status != 200:
