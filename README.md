@@ -17,13 +17,27 @@ from borsdata_sdk import BorsdataAPI
 
 borsdata = BorsdataAPI('<api_key>')
 
+# Meta
 markets = borsdata.get_markets()
 branches = borsdata.get_branches()
 countries = borsdata.get_countries()
 sectors = borsdata.get_sectors()
+
+# All stocks
 instruments = borsdata.get_instruments()
-updated_instruments = borsdata.get_instruments_updated()
+
+# Entries for stock with insId == 3
 entries = borsdata.get_instrument_stock_price(3)
 entries_from_to = borsdata.get_instrument_stock_price(3, '2009-04-22', '2009-04-25')
+
+# Updated instruments
+updated_instruments = borsdata.get_instruments_updated()
+
+# Last entries of updated instruments
 list_of_updated_instruments = borsdata.get_instrument_stock_price_last()
+
+# Reports
+yearly_reports = borsdata.get_instrument_reports(3, 'year')
+r12s = borsdata.get_instrument_reports(3, 'r12')
+quarters = borsdata.get_instrument_reports(3, 'quarter')
 ```

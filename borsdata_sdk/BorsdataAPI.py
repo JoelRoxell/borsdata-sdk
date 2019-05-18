@@ -45,14 +45,10 @@ class BorsdataAPI:
             List[Market] -- List of markets.
         """
 
-        self._markets = [Market(**market)
-                         for market in self._get_data_object('markets')]
-
-        return self._markets
+        return [Market(**market) for market in self._get_data_object('markets')]
 
     def get_branches(self):
-        return [Branch(**branch)
-                for branch in self._get_data_object('branches')]
+        return [Branch(**branch) for branch in self._get_data_object('branches')]
 
     def get_sectors(self) -> List[Sector]:
         """Returns all sectors.
@@ -61,8 +57,7 @@ class BorsdataAPI:
             List[Sector] -- List of sectors.
         """
 
-        return [Sector(**sector)
-                for sector in self._get_data_object('sectors')]
+        return [Sector(**sector) for sector in self._get_data_object('sectors')]
 
     def get_countries(self) -> List[Country]:
         """Return all countries.
@@ -71,8 +66,7 @@ class BorsdataAPI:
             List[Country] -- Lost of countires.
         """
 
-        return [Country(**country)
-                for country in self._get_data_object('countries')]
+        return [Country(**country) for country in self._get_data_object('countries')]
 
     def get_instruments(self, markets=None) -> List[Instrument]:
         """Returns all instruments.
