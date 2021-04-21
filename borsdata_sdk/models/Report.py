@@ -1,35 +1,41 @@
 class Report:
-    revenues: float
-    gross_Income: float
-    operating_Income: float
-    profit_Before_Tax: float
-    profit_to_Equity_Holders: float
-    earnings_Per_Share: float
-    number_of_shares: float
-    dividend: float
-    intangible_assets: float
-    tangible_assets: float
-    financial_assets: float
-    non_current_assets: float
-    cash_and_equivalents: float
-    current_assets: float
-    total_Assets: float
-    total_Equity: float
-    non_current_liabilities: float
-    current_liabilities: float
-    total_Liabilities_And_Equity: float
-    net_Debt: float
-    cash_flow_from_operating_activities: float
-    cash_flow_from_investing_activities: float
-    cash_flow_from_financing_activities: float
-    cash_flow_for_the_year: float
-    free_Cash_Flow: float
-    stock_Price_Average: float
-    stock_Price_High: float
-    stock_Price_Low: float
-    currency: str
-    report_Start_Date: str
-    report_End_Date: str
+    year = 0
+    period = 0
+    revenues = 0
+    gross_income = 0
+    operating_income = 0
+    profit_before_tax = 0
+    profit_to_equity_holders = 0
+    earnings_per_share = 0
+    number_of_shares = 0
+    dividend = 0
+    intangible_assets = 0
+    tangible_assets = 0
+    financial_assets = 0
+    non_current_assets = 0
+    cash_and_equivalents = 0
+    current_assets = 0
+    total_assets = 0
+    total_equity = 0
+    non_current_liabilities = 0
+    current_liabilities = 0
+    total_liabilities_and_equity = 0
+    net_debt = 0
+    cash_flow_from_operating_activities = 0
+    cash_flow_from_investing_activities = 0
+    cash_flow_from_financing_activities = 0
+    cash_flow_for_the_year = 0
+    free_cash_flow = 0
+    stock_price_average = 0
+    stock_price_high = 0
+    stock_price_low = 0
+    report_start_date =  ""
+    report_end_date =  ""
+    broken_discal_year = True
+    currency =  ""
+    currency_ratio = 0
+    net_sales = 0
+    report_date =  ""
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)

@@ -1,10 +1,8 @@
-from json import loads
 from time import sleep
-from typing import List
+from typing import List, Tuple
 from http import HTTPStatus
-
-import urllib3
 from requests import get
+import logging
 
 from .models.Branch import Branch
 from .models.Instrument import Instrument
@@ -16,30 +14,72 @@ from .models.Country import Country
 from .models.StockSplit import StockSplit
 from .models.Report import Report
 from .APIError import APIError
+from .utils.transform import transform_dict_props_to_lower
 
 RATE_LIMIT = 429
-RATE_WAIT = .3
+RATE_WAIT = 0.3
 UPDATED = True
-
-urllib3.disable_warnings()
 
 
 class BorsdataAPI:
     def __init__(self, api_key):
         self.api_key = api_key
-        self._params = {'authKey': self.api_key}
-        self._uri = 'https://apiservice.borsdata.se'
-        self._version = 'v1'
-        self._root = '{host}/{version}/'.format(
-            host=self._uri, version=self._version)
+        self._params = {"authKey": self.api_key}
+        self._uri = "https://apiservice.borsdata.se"
+        self._version = "v1"
+        self._root = "{host}/{version}".format(host=self._uri, version=self._version)
 
-    def get_instrument_reports(self, insId, type='quarter') -> List[Report]:
-        status, data = self._get(f'instruments/{insId}/reports/{type}')
+    def get_instrument_reports(
+        self, instrument_id: int, type="quarter"
+    ) -> List[Report]:
+        """Get reports for provided instrument
+
+        Args:
+            insId (str): instrument id
+            type (str, optional): report type, one of year|quarter|r12. Defaults to 'quarter'.
+
+        Raises:
+            APIError: generic com. error
+
+        Returns:
+            List[Report]: list of Reports
+        """
+
+        status, data = self._get(f"/instruments/{instrument_id}/reports/{type}")
 
         if status != HTTPStatus.OK:
             raise APIError
 
-        return [Report(**report) for report in data.get('reports', [])]
+        return [
+            Report(**transform_dict_props_to_lower(report))
+            for report in data.get("reports", [])
+        ]
+
+    def get_all_instrument_reports(
+        self, instrument_id: int, max_year_count=10, max_r12q_count=10
+    ) -> dict:
+        """Returns reports for instrument. All reports type included (year, r12, quarter).
+        Note the returned type is not tranformed to a python object.
+
+        Args:
+            instrument_id (int): instrument
+            max_year_count (int, optional): # reports limit. Defaults to 10.
+            max_r12q_count (int, optional): # reports limit. Defaults to 10.
+
+        Returns:
+            dict: containing all reports for instrument
+        """
+        _, data = self._get(
+            f"/instruments/{instrument_id}/reports",
+            {"mayYearCount": max_year_count, "maxR12QCount": max_r12q_count},
+        )
+
+        return data
+
+    def get_instruments_reports_meta_data(self) -> List[dict]:
+        _, data = self._get("/instruments/reports/metadata")
+
+        return data.get("reportMetadatas")
 
     def get_markets(self) -> List[Market]:
         """Returns all markets.
@@ -48,10 +88,10 @@ class BorsdataAPI:
             List[Market] -- List of markets.
         """
 
-        return [Market(**market) for market in self._get_data_object('markets')]
+        return [Market(**market) for market in self._get_data_object("markets")]
 
-    def get_branches(self):
-        return [Branch(**branch) for branch in self._get_data_object('branches')]
+    def get_branches(self) -> List[Branch]:
+        return [Branch(**branch) for branch in self._get_data_object("branches")]
 
     def get_sectors(self) -> List[Sector]:
         """Returns all sectors.
@@ -60,7 +100,7 @@ class BorsdataAPI:
             List[Sector] -- List of sectors.
         """
 
-        return [Sector(**sector) for sector in self._get_data_object('sectors')]
+        return [Sector(**sector) for sector in self._get_data_object("sectors")]
 
     def get_countries(self) -> List[Country]:
         """Return all countries.
@@ -69,9 +109,14 @@ class BorsdataAPI:
             List[Country] -- Lost of countires.
         """
 
-        return [Country(**country) for country in self._get_data_object('countries')]
+        return [Country(**country) for country in self._get_data_object("countries")]
 
-    def get_instruments(self, markets=None) -> List[Instrument]:
+    def get_translation_meta_data(self):
+        translations = self._get_data_object("translationMetadata")
+
+        return translations.get("translationMetadatas")
+
+    def get_instruments(self, markets: List[int] = None) -> List[Instrument]:
         """Returns all instruments.
 
         Keyword Arguments:
@@ -82,8 +127,10 @@ class BorsdataAPI:
             List[Instrument] -- List of instruments.
         """
 
-        instruments = [Instrument(**instrument)
-                       for instrument in self._get_data_object('instruments')]
+        instruments = [
+            Instrument(**instrument)
+            for instrument in self._get_data_object("instruments")
+        ]
 
         if markets is None:
             return instruments
@@ -103,24 +150,26 @@ class BorsdataAPI:
             List[InstrumentUpdate] -- List of all updated instruments.
         """
 
-        _, data = self._get('instruments/updated')
+        _, data = self._get("/instruments/updated")
 
-        return [InstrumentUpdate(**instrument)
-                for instrument in data.get('instruments')]
+        return [
+            InstrumentUpdate(**instrument) for instrument in data.get("instruments")
+        ]
 
     def get_instrument_stock_price(
-            self, ins_id, start=None, end=None) -> List[StockPrice]:
-        """Returns stockprices for an instrument (ins_id), 
-           it is possible to determine the timespan using start and end. 
+        self, ins_id: str, start: str = None, end: str = None, count: int = 20
+    ):
+        """Returns stockprices for an instrument (ins_id),
+           it is possible to determine the timespan using start and end.
            Max 10 years, if no time filters provided.
 
         Arguments:
             ins_id {int} -- Instrument id.
 
         Keyword Arguments:
-            start {str} --  Determines from which day to start the collection, 
+            start {str} --  Determines from which day to start the collection,
                 ex: '2009-04-22' (default: {None})
-            end {str} --  Determines the collection limit, ex:'2009-04-25', 
+            end {str} --  Determines the collection limit, ex:'2009-04-25',
                 (default: {None})
 
         Raises:
@@ -130,26 +179,16 @@ class BorsdataAPI:
             List[StockPrice] -- List of the collected stockprices.
         """
 
-        params = self._params.copy()
+        self._params.update({"from": start, "to": end, "maxCount": count})
+        status, data = self._get(f"/instruments/{ins_id}/stockprices")
 
-        while True:
-            if start and end:
-                params.update({'from': start, 'to': end})
+        if status != HTTPStatus.OK:
+            raise APIError(f"api returned status: {status}")
 
-            res = get(self._root + 'instruments/{}/stockprices'.format(ins_id),
-                      params=params, verify=False)
-
-            if res.status_code != 200 and not res.status_code == RATE_LIMIT:
-                raise APIError(
-                    'Failed to communicate with the borsdata_sdk api')
-
-            if res.status_code == 200:
-                break
-
-            sleep(0.3)
-
-        entries = [StockPrice(**entry)
-                   for entry in loads(res.content).get('stockPricesList')]
+        entries = [
+            StockPrice(**transform_dict_props_to_lower(entry))
+            for entry in data.get("stockPricesList")
+        ]
 
         return entries
 
@@ -160,23 +199,46 @@ class BorsdataAPI:
             List[StockPrice] -- List of all last updated price.
         """
 
-        status, data = self._get('instruments/stockprices/last')
+        _, data = self._get("/instruments/stockprices/last")
 
-        return [StockPrice(**entry)
-                for entry in data.get('stockPricesList', [])]
+        return [
+            StockPrice(**transform_dict_props_to_lower(entry))
+            for entry in data.get("stockPricesList", [])
+        ]
 
-    def get_stock_splits(self) -> List[int]:
+    def get_instruments_stock_prices_by_date(self, date: str) -> List[StockPrice]:
+        """Returns one stockprice for each instrument for the given date
+
+        Args:
+            date (str): day
+
+        Returns:
+            List[StockPrice]: stockprices
+        """
+        _, data = self._get("/instruments/stockprices/date", {"date": date})
+
+        return [
+            StockPrice(**transform_dict_props_to_lower(entry))
+            for entry in data.get("stockPricesList", [])
+        ]
+
+    def get_stock_splits(self) -> List[StockSplit]:
         """Returns Stock Splits for all Instruments. Max 1 Year.
 
         Returns:
-            List[int] -- [description]
+            List[StockSplit] --
         """
-        status, data = self._get('instruments/StockSplits')
+        _, data = self._get("/instruments/StockSplits")
 
-        return [StockSplit(**split) for split in data.get('stockSplitList')]
+        return [
+            StockSplit(**transform_dict_props_to_lower(split))
+            for split in data.get("stockSplitList")
+        ]
 
-    def _get_data_object(self, data_type):
+    def _get_data_object(self, data_type: str):
         """Gets the specified datatype from the remote API.
+        Transformes it to a proper data object if possible,
+        otherwise the entire response payload is returned.
 
         Arguments:
             data_type {str} -- Datatype.
@@ -187,15 +249,16 @@ class BorsdataAPI:
         Returns:
             List[T] - List of the passed type.
         """
-        status, data = self._get(data_type)
+        _, data = self._get(f"/{data_type}")
 
-        if status != 200:
-            raise APIError(
-                f'Failed to communicate with {self._root}{data_type} status: {status}')
+        inner_data = data.get(data_type)
 
-        return data.get(data_type)
+        if not inner_data:
+            return data
 
-    def _get(self, endpoint) -> (int, dict):
+        return inner_data
+
+    def _get(self, endpoint, query_params={}) -> Tuple[int, dict]:
         """Perform a remote request to the API and retries on rate limit responses, returns json payload on success.
 
         Arguments:
@@ -206,11 +269,20 @@ class BorsdataAPI:
         """
 
         while True:
-            res = get(self._root + endpoint, self._params, verify=False)
+            target = self._root + endpoint
 
-            if res.status_code != RATE_LIMIT:
-                break
+            logging.info(f"requesting resource: {target}")
+
+            _query_params = self._params.copy()
+            _query_params.update(query_params)
+
+            res = get(target, _query_params, verify=False)
+            status = res.status_code
+
+            if status == HTTPStatus.OK:
+                return res.status_code, res.json()
+
+            if status != RATE_LIMIT:
+                raise APIError(f"borsdata api responded with {res}")
 
             sleep(RATE_WAIT)
-
-        return res.status_code, res.json()

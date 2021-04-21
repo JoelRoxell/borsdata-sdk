@@ -9,25 +9,29 @@ borsdata-sdk = "==0.0.4"
 certifi = "==2019.3.9"
 chardet = "==3.0.4"
 docutils = "==0.14"
-get = "==2019.4.13"
 idna = "==2.8"
 pkginfo = "==1.5.0.1"
-public = "==2019.4.13"
-query-string = "==2019.4.13"
-requests = "==2.21.0"
+requests = "*"
 requests-toolbelt = "==0.9.1"
 six = "==1.12.0"
 tqdm = "==4.31.1"
 twine = "==1.13.0"
-"urllib3" = "==1.24.2"
+urllib3 = "==1.24.2"
 webencodings = "==0.5.1"
 Pygments = "==2.3.1"
 readme_renderer = "==24.0"
 pandas = "*"
 matplotlib = "*"
 numpy = "*"
+pytest = "*"
+case-converter = "*"
 
 [dev-packages]
+pytest = "*"
+black = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
