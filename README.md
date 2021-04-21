@@ -19,27 +19,35 @@ from borsdata_sdk import BorsdataAPI
 
 borsdata = BorsdataAPI('<api_key>')
 
-# Meta
+# Instrument Meta
 markets = borsdata.get_markets()
 branches = borsdata.get_branches()
-countries = borsdata.get_countries()
 sectors = borsdata.get_sectors()
+countries = borsdata.get_countries()
+translations = borsdata.get_translation_meta_data()
 
-# All stocks
+# Instruments
 instruments = borsdata.get_instruments()
+instruments = borsdata.get_instruments_by_market(markets=[1, 2])
+updates =  borsdata.get_instruments_updated()
 
-# Entries for stock with insId == 3
+# KPIs
+# In progress
+
+# StockPrices
 entries = borsdata.get_instrument_stock_price(3)
 entries_from_to = borsdata.get_instrument_stock_price(3, '2009-04-22', '2009-04-25')
-
-# Updated instruments
-updated_instruments = borsdata.get_instruments_updated()
-
-# Last entries of updated instruments
-list_of_updated_instruments = borsdata.get_instrument_stock_price_last()
+updates = borsdata.get_instrument_stock_price_last()
+updates = borsdata.get_instruments_stock_prices_by_date("2021-04-20")
 
 # Reports
 yearly_reports = borsdata.get_instrument_reports(3, 'year')
 r12s = borsdata.get_instrument_reports(3, 'r12')
 quarters = borsdata.get_instrument_reports(3, 'quarter')
+all_reports = borsdata.get_all_instrument_reports(77)
+meta = borsdata.api.get_instruments_reports_meta_data()
+
+# StockSplits
+splits = borsdata.api.get_stock_splits()
+
 ```
