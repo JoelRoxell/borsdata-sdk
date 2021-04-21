@@ -27,6 +27,11 @@ pytest = "*"
 case-converter = "*"
 
 [dev-packages]
+pytest = "*"
+black = "*"
 
 [requires]
 python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
