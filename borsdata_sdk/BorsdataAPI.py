@@ -179,8 +179,10 @@ class BorsdataAPI:
             List[StockPrice] -- List of the collected stockprices.
         """
 
-        self._params.update({"from": start, "to": end, "maxCount": count})
-        status, data = self._get(f"/instruments/{ins_id}/stockprices")
+        status, data = self._get(
+            f"/instruments/{ins_id}/stockprices",
+            {"from": start, "to": end, "maxCount": count},
+        )
 
         if status != HTTPStatus.OK:
             raise APIError(f"api returned status: {status}")
