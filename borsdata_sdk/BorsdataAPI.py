@@ -278,7 +278,7 @@ class BorsdataAPI:
             _query_params = self._params.copy()
             _query_params.update(query_params)
 
-            res = get(target, _query_params, verify=False)
+            res = get(target, _query_params)
             status = res.status_code
 
             if status == HTTPStatus.OK:
