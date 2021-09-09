@@ -1,3 +1,8 @@
+all: test upload-test
+
+test:
+	pytest
+
 build:
 	python setup.py sdist bdist_wheel
 
@@ -11,7 +16,7 @@ deploy-tools:
 	python -m pip install --user --upgrade setuptools wheel
 	python -m pip install --user --upgrade twine
 
-clean: 
+clean: dist build borsdata_sdk.egg-info
 	rm -r dist
 	rm -r build
 	rm -r borsdata_sdk.egg-info
