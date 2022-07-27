@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from time import sleep
 from typing import List, Tuple
 from http import HTTPStatus
@@ -29,7 +30,7 @@ class BorsdataAPI:
         self._version = "v1"
         self._root = "{host}/{version}".format(host=self._uri, version=self._version)
 
-    def get_instrument_reports(
+    def get_instrument_reports(                                                                             
         self, instrument_id: int, type="quarter"
     ) -> List[Report]:
         """Get reports for provided instrument
@@ -55,7 +56,7 @@ class BorsdataAPI:
             for report in data.get("reports", [])
         ]
 
-    def get_all_instrument_reports(
+    def get_all_instrument_reports(                                                                         
         self, instrument_id: int, max_year_count=10, max_r12q_count=10
     ) -> dict:
         """Returns reports for instrument. All reports type included (year, r12, quarter).
@@ -71,17 +72,17 @@ class BorsdataAPI:
         """
         _, data = self._get(
             f"/instruments/{instrument_id}/reports",
-            {"mayYearCount": max_year_count, "maxR12QCount": max_r12q_count},
+            {"maxYearCount": max_year_count, "maxR12QCount": max_r12q_count},
         )
 
         return data
 
-    def get_instruments_reports_meta_data(self) -> List[dict]:
+    def get_instruments_reports_meta_data(self) -> List[dict]:                                          
         _, data = self._get("/instruments/reports/metadata")
 
         return data.get("reportMetadatas")
 
-    def get_markets(self) -> List[Market]:
+    def get_markets(self) -> List[Market]:                                                              
         """Returns all markets.
 
         Returns:
@@ -90,10 +91,10 @@ class BorsdataAPI:
 
         return [Market(**market) for market in self._get_data_object("markets")]
 
-    def get_branches(self) -> List[Branch]:
+    def get_branches(self) -> List[Branch]:                                                             
         return [Branch(**branch) for branch in self._get_data_object("branches")]
 
-    def get_sectors(self) -> List[Sector]:
+    def get_sectors(self) -> List[Sector]:                                                              
         """Returns all sectors.
 
         Returns:
@@ -102,7 +103,7 @@ class BorsdataAPI:
 
         return [Sector(**sector) for sector in self._get_data_object("sectors")]
 
-    def get_countries(self) -> List[Country]:
+    def get_countries(self) -> List[Country]:                                                           
         """Return all countries.
 
         Returns:
@@ -111,12 +112,12 @@ class BorsdataAPI:
 
         return [Country(**country) for country in self._get_data_object("countries")]
 
-    def get_translation_meta_data(self):
+    def get_translation_meta_data(self):                                                                
         translations = self._get_data_object("translationMetadata")
 
         return translations.get("translationMetadatas")
 
-    def get_instruments(self, markets: List[int] = None) -> List[Instrument]:
+    def get_instruments(self, markets: List[int] = None) -> List[Instrument]:                           
         """Returns all instruments.
 
         Keyword Arguments:
@@ -143,7 +144,7 @@ class BorsdataAPI:
 
         return filtered_instruments
 
-    def get_instruments_updated(self) -> List[InstrumentUpdate]:
+    def get_instruments_updated(self) -> List[InstrumentUpdate]:                                        
         """Returns all updated instruments.
 
         Returns:
@@ -208,7 +209,7 @@ class BorsdataAPI:
             for entry in data.get("stockPricesList", [])
         ]
 
-    def get_instruments_stock_prices_by_date(self, date: str) -> List[StockPrice]:
+    def get_single_instrument_stock_prices_by_date(self, date: str) -> List[StockPrice]:  
         """Returns one stockprice for each instrument for the given date
 
         Args:
@@ -236,6 +237,30 @@ class BorsdataAPI:
             StockSplit(**transform_dict_props_to_lower(split))
             for split in data.get("stockSplitList")
         ]
+
+    def get_kpi_summary_for_single_instrument(self, insid: int, reporttype: str):
+        pass
+
+    def get_kpi_history(self, insid: int, kpiid: int, reporttype: str, pricetype: str):
+        pass
+    
+    def get_kpis_for_one_instrument(self, insid: int, kpiid: int, calcgroup: str, calc: str):
+        pass
+    
+    def get_kpis_for_all_instruments(self, kpiid: int, calcgroup: str, calc: str):
+        pass
+    
+    def get_kpis_last_updated(self) -> List:
+        
+        data = self._get("instruments/kpis/updated")
+
+        return data 
+    
+    def get_kpi_meta_data(self) -> List[dict]:
+
+        _, data = self._get("instruments/kpis/metadata")
+
+        return data.get("kpiHistoryMetadatas")
 
     def _get_data_object(self, data_type: str):
         """Gets the specified datatype from the remote API.
