@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="borsdata_sdk",
-    version="1.2.1",
+    version="1.2.2",
     author="Joel S. Roxell",
     author_email="joel.roxell@annevo.se",
     description="Borsdata api SDK",
