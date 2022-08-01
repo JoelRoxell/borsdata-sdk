@@ -36,15 +36,12 @@ class Test_TestBorsdataAPI(unittest.TestCase):
     def test_get_instruments_by_market(self):
         filtered_instruments = self.api.get_instruments(markets=[1, 2])
 
-        self.assertTrue(len(filtered_instruments) == 296)
+        self.assertTrue(len(filtered_instruments) == 321)
 
     def test_get_instruments_last(self):
         updated_instruments = self.api.get_instruments_updated()
 
         self.assertTrue(len(updated_instruments) > 0)
-
-    # Kpis
-    # In progress...
 
     # StockPrices
     def test_get_instrument_stock_price_all(self):
@@ -71,9 +68,9 @@ class Test_TestBorsdataAPI(unittest.TestCase):
         r12s = self.api.get_instrument_reports(3, "r12")
         quarters = self.api.get_instrument_reports(3, "quarter")
 
-        self.assertTrue(yearly_reports[-1].year == 2011)
-        self.assertTrue(r12s[-1].year == 2019)
-        self.assertTrue(quarters[-1].year == 2019)
+        self.assertTrue(yearly_reports[0].year == 2021)
+        self.assertTrue(r12s[0].year == 2022)
+        self.assertTrue(quarters[0].year == 2022)
 
     def test_get_all_instrument_reports(self):
         reports = self.api.get_all_instrument_reports(77)
@@ -95,10 +92,10 @@ class Test_TestBorsdataAPI(unittest.TestCase):
     def test_get_instrument_stock_split(self):
         splits = self.api.get_stock_splits()
 
-        self.assertEqual(splits[0].instrument_id, 8)
+        self.assertEqual(splits[0].instrument_id, 1897)
         self.assertEqual(splits[0].split_type, "S")
-        self.assertEqual(splits[0].ratio, "4:1")
-        self.assertEqual(splits[0].split_date, "2020-09-15T00:00:00")
+        self.assertEqual(splits[0].ratio, "10:1")
+        self.assertEqual(splits[0].split_date, "2021-08-05T00:00:00")
 
 
 if __name__ == "__main__":
