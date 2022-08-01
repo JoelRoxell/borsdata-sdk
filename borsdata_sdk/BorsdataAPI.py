@@ -71,7 +71,7 @@ class BorsdataAPI:
         """
         _, data = self._get(
             f"/instruments/{instrument_id}/reports",
-            {"mayYearCount": max_year_count, "maxR12QCount": max_r12q_count},
+            {"maxYearCount": max_year_count, "maxR12QCount": max_r12q_count},
         )
 
         return data
